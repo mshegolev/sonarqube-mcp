@@ -1,0 +1,42 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mshegolev/sonarqube-mcp",
+  "description": "SonarQube MCP — projects, metrics, quality gate, issues, worst-metric ranking.",
+  "repository": {
+    "url": "https://github.com/mshegolev/sonarqube-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "sonarqube-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SONARQUBE_URL",
+          "description": "SonarQube URL (e.g. https://sonar.example.com or https://sonarcloud.io)",
+          "isRequired": true,
+          "format": "string"
+        },
+        {
+          "name": "SONARQUBE_TOKEN",
+          "description": "SonarQube authentication token (Bearer). Generate in: My Account → Security → Tokens.",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "SONARQUBE_SSL_VERIFY",
+          "description": "Verify SSL certificates (true/false). Set to 'false' for self-signed certs.",
+          "isRequired": false,
+          "format": "string",
+          "default": "true"
+        }
+      ]
+    }
+  ]
+}
