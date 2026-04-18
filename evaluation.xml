@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+sonarqube-mcp evaluation suite (10 read-only QA pairs).
+
+These questions are designed per the mcp-builder Phase 4 specification:
+realistic, independent, read-only, complex enough to require multiple tool
+calls, with single verifiable answers.
+
+**Answers are PLACEHOLDER and must be filled in against a concrete SonarQube
+instance before running the harness.** The question design is instance-agnostic;
+the exact values depend on which SonarQube you point the server at.
+
+Recommended instances for verification:
+  - Any team's self-hosted SonarQube (internal)
+  - sonarcloud.io with a public organisation (project_key = "my-org_my-repo")
+  - The SonarQube demo at https://next.sonarqube.com/sonarqube (limited)
+
+Workflow:
+  1. Set SONARQUBE_URL + SONARQUBE_TOKEN env vars.
+  2. Manually solve each question (or use Claude Code with the MCP server) to
+     determine the correct answer.
+  3. Replace each <answer>__VERIFY_ON_INSTANCE__</answer> with the real value.
+  4. Run: python scripts/evaluation.py -t stdio -c sonarqube-mcp -e SONARQUBE_URL=... -e SONARQUBE_TOKEN=... evaluation.xml
+
+All questions exercise read-only tools and are stable against historical data.
+-->
+<evaluation>
+  <qa_pair>
+    <question>Among all projects whose key or name contains the substring "backend", which one has the lowest line coverage percentage according to its most recent main-branch analysis? Provide only the project key.</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Consider the top 20 projects ranked by number of bugs on their main branch. Among those, which project has the highest sqale_rating (worst maintainability grade)? Respond with the project key.</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>For the SonarQube project with key "my-org_my-backend-service" (or the first project returned by a listing without filter), what is the Quality Gate status on the main branch? Respond with one of: OK, WARN, ERROR, NONE.</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Take the three projects with the greatest number of lines of code (ncloc) on their main branch. How many of them currently pass their Quality Gate (status = OK)? Respond with an integer 0-3.</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Among unresolved BLOCKER-severity issues of type VULNERABILITY across the SonarQube instance's first project (by default listing order), which rule key accounts for the largest number of issues? Provide the rule key as returned by the API (e.g. "java:S2076").</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>For the project with the highest duplicated_lines_density among projects matching query "platform", what is the exact duplicated_lines_density value as a string (e.g. "17.4")?</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>The SonarQube instance contains multiple projects. Rank all of them by number of code_smells (descending). What is the total number of code_smells in the 5th-ranked project, as an integer string (e.g. "1234")?</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Among unresolved issues in any project whose key starts with "einvy" (or the alphabetically first project if no "einvy" project exists), how many MAJOR-severity CODE_SMELL issues exist on the main branch? Respond with the integer returned as `total`.</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Take the project with the worst (highest numeric rating) security_rating. What is its alert_status (Quality Gate summary) on the main branch? Respond with one of: OK, WARN, ERROR, NONE.</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>For the first project returned by an unfiltered listing of projects (page=1, page_size=50, default order), what is the numeric reliability_rating on its main branch? Respond with a single digit 1-5 (1=A best, 5=E worst).</question>
+    <answer>__VERIFY_ON_INSTANCE__</answer>
+  </qa_pair>
+</evaluation>
