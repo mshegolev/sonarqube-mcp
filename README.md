@@ -122,6 +122,14 @@ Ratings in SonarQube are numeric strings `"1"` (A, best) through `"5"` (E, worst
 - No `POST` / `PUT` / `DELETE` is ever called.
 - Severity / type / qualifier inputs are validated against SonarQube enums before the API call, so the tool fails fast on typos rather than hitting the API.
 
+## Performance characteristics
+
+- Every tool makes **one HTTP call** to SonarQube except `sonarqube_worst_metrics`, which makes **one search call + ⌈candidate_pool/100⌉ bulk-measures calls**. Default settings land at ≤ 2 calls.
+- Single-tool response time on a healthy SonarQube instance: typically < 500 ms.
+- Pagination is passed through to SonarQube (`p` + `ps` params) — no full-result buffering in the MCP server.
+- `sonarqube_worst_metrics` caps `candidate_pool` at 500 — on instances with thousands of projects, pre-filter with `query=` before ranking (see the tool docstring).
+- SonarQube has no published hard rate limit. If 429 is received the server surfaces an actionable error ("Wait 30-60 s before retrying; reduce page_size").
+
 ## Development
 
 ```bash

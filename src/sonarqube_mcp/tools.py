@@ -134,6 +134,16 @@ def sonarqube_list_projects(
     Pagination: if ``has_more`` is ``True``, call again with ``page + 1``.
     Results are sorted by SonarQube default order (component name ascending).
 
+    Examples:
+        - Use when: "What SonarQube projects contain 'backend' in the name?"
+          → ``query='backend'``, default pagination.
+        - Use when: The user gives a project name but not its key.
+        - Don't use when: You already have the project key and only need its
+          metrics (call ``sonarqube_project_metrics`` directly — one fewer
+          round trip).
+        - Don't use when: You need Quality Gate status (that's
+          ``sonarqube_quality_gate_status``; this tool doesn't return it).
+
     Returns:
         dict with keys ``projects_count`` / ``total`` / ``page`` /
         ``page_size`` / ``has_more`` / ``next_page`` / ``query`` /
@@ -240,6 +250,17 @@ def sonarqube_project_metrics(
 
     To find valid metric keys, call with the default set first — SonarQube
     ignores unknown metric keys and returns what it knows.
+
+    Examples:
+        - Use when: "What's the code coverage of `einvy:aut_einvy`?"
+          → ``project_key='einvy:aut_einvy'``, default ``metric_keys``.
+        - Use when: "Coverage on the `feature/new-auth` branch?"
+          → add ``branch='feature/new-auth'``.
+        - Use when: "Metrics on PR #42?" → ``pull_request='42'``.
+        - Don't use when: You want to compare many projects — use
+          ``sonarqube_worst_metrics`` which bulk-fetches and ranks.
+        - Don't use when: You want the Quality Gate's per-condition
+          breakdown — that's ``sonarqube_quality_gate_status``.
     """
     try:
         if branch and pull_request:
@@ -333,6 +354,19 @@ def sonarqube_quality_gate_status(
 
     ``NONE`` means the project exists but has no Quality Gate attached or
     no analysis yet.
+
+    Examples:
+        - Use when: "Is `einvy:aut_einvy` passing its Quality Gate?"
+          → ``project_key='einvy:aut_einvy'``.
+        - Use when: "Which conditions fail on PR #42?"
+          → ``project_key=...``, ``pull_request='42'``.
+        - Use when: "Does `feature/xyz` still pass the gate?"
+          → add ``branch='feature/xyz'``.
+        - Don't use when: You want raw metric values without
+          the pass/fail verdict — ``sonarqube_project_metrics`` is leaner.
+        - Don't use when: You want the list of failing projects
+          org-wide — use ``sonarqube_worst_metrics`` with
+          ``metric='alert_status'`` or aggregate manually.
     """
     try:
         if branch and pull_request:
@@ -477,6 +511,20 @@ def sonarqube_get_issues(
     Pagination: if ``has_more`` is ``True``, call again with ``page + 1``.
     SonarQube caps total pagination at 10 000 issues; tighten the filters
     if you need to go deeper.
+
+    Examples:
+        - Use when: "Triage top BLOCKER / CRITICAL bugs in `einvy:aut_einvy`"
+          → ``severities=['BLOCKER','CRITICAL']``, ``types=['BUG']``.
+        - Use when: "Security sweep on the PR"
+          → ``types=['VULNERABILITY']``, ``pull_request='42'``.
+        - Use when: "Show closed issues from March 2024"
+          → ``resolved=True`` (then post-process by creation_date).
+        - Don't use when: You want an issue count only — ``get_issues``
+          always returns full issue objects; for a cheap count call with
+          ``page_size=1`` and read ``total`` from the response.
+        - Don't use when: You want **Security Hotspots** — they live on
+          ``/api/hotspots/search`` (this tool rejects them with a clear
+          error so you won't get silently empty results).
     """
     try:
         if branch and pull_request:
@@ -628,6 +676,19 @@ def sonarqube_worst_metrics(
     ratings, ``duplicated_lines_density``, ``open_issues``) higher is worse.
     For ``coverage``, ``tests``, ``line_coverage``, ``branch_coverage`` —
     lower is worse.
+
+    Examples:
+        - Use when: "Top 10 worst-coverage services across the org"
+          → ``metric='coverage'``, ``limit=10``.
+        - Use when: "Which `einvy:*` projects have the most bugs?"
+          → ``metric='bugs'``, ``query='einvy'``, ``limit=5``.
+        - Use when: "What projects have the worst security rating?"
+          → ``metric='security_rating'``.
+        - Don't use when: You only care about one project — use
+          ``sonarqube_project_metrics`` (one API call instead of two).
+        - Don't use when: You want branch-specific ranking — SonarQube's
+          ``/api/measures/search`` endpoint doesn't accept ``branch``, so
+          this tool always ranks main-branch values.
     """
     try:
         client = get_client()
