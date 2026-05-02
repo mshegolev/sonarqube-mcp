@@ -7,7 +7,7 @@ name = "sonarqube-mcp"
 version = "0.1.0"
 description = "MCP server for SonarQube — projects, metrics, quality gate, issues, worst-metric ranking."
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.10"
 authors = [
     { name = "Mikhail Shchegolev" },
