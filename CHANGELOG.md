@@ -3,6 +3,16 @@
 All notable changes to `sonarqube-mcp` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use [SemVer](https://semver.org/).
 
+## [0.1.1] — 2026-08-10
+
+### Fixed
+- Pin `mcp>=1.2,<2`. The unbounded `mcp>=1.2` let a clean install resolve
+  `mcp 2.0`, which removed `mcp.server.fastmcp` — the package this server is
+  built on. Effect was not limited to tests: the installed `sonarqube-mcp`
+  console script died at import with
+  `ModuleNotFoundError: No module named 'mcp.server.fastmcp'`, which an MCP
+  client surfaces as an opaque transport failure.
+
 ## [0.1.0] — 2026-04-18
 
 ### Added
