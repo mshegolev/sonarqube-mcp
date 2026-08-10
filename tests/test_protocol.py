@@ -11,6 +11,9 @@ FastMCP exposes ``mcp.list_tools()`` as the in-process equivalent of the
 - The ``inputSchema`` contains the right param names, constraints, and
   required markers — what an MCP client would use to build tool-call
   arguments.
+- The ``sonarqube-mcp`` console script declared in ``[project.scripts]``
+  still resolves and loads — the catalogue can be perfect while the
+  launcher the user actually runs is broken.
 
 This is the closest we can get to ``npx @modelcontextprotocol/inspector``
 without a UI.
@@ -19,6 +22,7 @@ without a UI.
 from __future__ import annotations
 
 import asyncio
+from importlib.metadata import entry_points
 from typing import Any
 
 import pytest
@@ -70,6 +74,33 @@ EXPECTED_TOOLS: dict[str, dict[str, Any]] = {
 def listed_tools() -> list[Any]:
     """One-shot handshake equivalent: fetch the tool catalogue FastMCP exposes."""
     return asyncio.run(mcp.list_tools())
+
+
+def test_entry_point_module_imports_and_shares_the_server() -> None:
+    """``sonarqube_mcp.server`` is what the console script runs.
+
+    It must import cleanly and expose the *same* FastMCP instance the tools
+    registered themselves on — otherwise the launched server serves nothing.
+    """
+    from sonarqube_mcp import _mcp as shared
+    from sonarqube_mcp import server
+
+    assert callable(server.main)
+    assert server.mcp is shared.mcp
+    assert callable(getattr(server.mcp, "run", None)), "FastMCP instance has no run() — facade broken"
+
+
+def test_console_script_target_resolves() -> None:
+    """The ``[project.scripts]`` target must be loadable from installed metadata.
+
+    This is the packaging-level equivalent of running the binary: if the
+    module path in ``pyproject.toml`` drifts, or an import inside it explodes,
+    ``ep.load()`` raises here instead of at a user's first launch.
+    """
+    scripts = [ep for ep in entry_points(group="console_scripts") if ep.name == "sonarqube-mcp"]
+    assert scripts, "console script 'sonarqube-mcp' not registered — package not installed?"
+    assert scripts[0].value == "sonarqube_mcp.server:main"
+    assert callable(scripts[0].load())
 
 
 def test_all_five_tools_registered(listed_tools: list[Any]) -> None:
