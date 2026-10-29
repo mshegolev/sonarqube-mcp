@@ -3,6 +3,15 @@
 All notable changes to `sonarqube-mcp` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use [SemVer](https://semver.org/).
 
+## [0.1.2] — 2026-10-29
+
+Housekeeping release. No runtime changes: `src/` is identical to 0.1.1.
+
+### Added
+- Test covering the console-script entry point.
+- Weekly scheduled CI run (Wednesday 05:43 UTC) so dependency drift such as the
+  `mcp 2.0` breakage fixed in 0.1.1 is caught loudly instead of silently.
+
 ## [0.1.1] — 2026-08-10
 
 ### Fixed
